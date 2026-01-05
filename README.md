@@ -18,7 +18,7 @@ This project implements an **Asynchronous FIFO (First-In-First-Out)** buffer tha
 ## Architecture
 
 ### Block Diagram
-```
+```https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse2.mm.bing.net%2Fth%2Fid%2FOIP.BiDn_z50TP0XAhUlwbRHPAHaEL%3Fpid%3DApi&f=1&ipt=a19dc7e7c99ba11bd951296a572d8d1d46f36efc1d6fcfffef12831ba1958eab&ipo=images
 Write Clock Domain          |          Read Clock Domain
      (wclk)                 |              (rclk)
                             |
