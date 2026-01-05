@@ -16,7 +16,8 @@ This project implements an **Asynchronous FIFO (First-In-First-Out)** buffer tha
 - ✅ **Memory Efficient**: Uses dual-port memory for efficient data storage
 
 ## Architecture
-https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse2.mm.bing.net%2Fth%2Fid%2FOIP.BiDn_z50TP0XAhUlwbRHPAHaEL%3Fpid%3DApi&f=1&ipt=a19dc7e7c99ba11bd951296a572d8d1d46f36efc1d6fcfffef12831ba1958eab&ipo=images
+<img width="768" height="434" alt="image" src="https://github.com/user-attachments/assets/30a23de1-5f33-4a01-8035-4bb95deffabb" />
+
 ### Block Diagram
 ```
 Write Clock Domain          |          Read Clock Domain
