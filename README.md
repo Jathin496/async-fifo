@@ -1,223 +1,167 @@
-# Asynchronous FIFO (Async FIFO)
+Asynchronous FIFO (Async FIFO)
 
-A robust asynchronous FIFO implementation in Verilog with proper Clock Domain Crossing (CDC) synchronization using Gray code pointers.
+An asynchronous FIFO implementation in Verilog for safe data transfer between two independent clock domains.
+The design uses Gray code pointers and double-flop synchronization to handle clock domain crossing (CDC) correctly.
 
-## Overview
+Overview
 
-This project implements an **Asynchronous FIFO (First-In-First-Out)** buffer that safely transfers data between two independent clock domains. The design uses Gray code encoding for safe pointer synchronization, eliminating metastability issues in CDC scenarios.
+This project implements an Asynchronous FIFO (First-In-First-Out) buffer that allows reliable communication between a write clock domain and a read clock domain running at different frequencies.
 
-### Key Features
+The focus of this design is correct CDC handling, clean reset behavior, and a self-checking testbench that verifies data integrity.
 
-- ✅ **Clock Domain Crossing (CDC) Safe**: Uses Gray code pointers with 2-stage synchronizer for safe clock domain crossing
-- ✅ **Parameterizable Design**: Configurable data width and FIFO depth
-- ✅ **Independent Clock Domains**: Separate read and write clocks with independent resets
-- ✅ **Full and Empty Flags**: Accurate full and empty detection
-- ✅ **Synchronous Design**: All operations synchronized to respective clock domains
-- ✅ **Memory Efficient**: Uses dual-port memory for efficient data storage
+Key Features
 
-## Architecture
-<img width="768" height="434" alt="image" src="https://github.com/user-attachments/assets/30a23de1-5f33-4a01-8035-4bb95deffabb" />
+Independent write and read clocks
 
-### Block Diagram
-```
-Write Clock Domain          |          Read Clock Domain
-     (wclk)                 |              (rclk)
-                            |
-  wdata ─────┐              |
-             │              |
-           ┌─▼──────────────┼──────────────┐
-           │  FIFO Memory   │              │
-           │  (depth×width) │              │
-           └─┬──────────────┼──────────────┘
-             │              |            │
-    wptr ────┤ Gray Code CDC│ Gray Code ├──► rdata
-    wclk ────┤ Synchronizer │ Pointer   │
-  wrst_n ────┤              │           │
-   full ◄────┤              │           │
-             │              |            │
-             │              |      rptr ├──► empty
-             └──────────────┼──────────┘
-                            |
-```
+Parameterized data width and FIFO depth
 
-## Port Description
+Gray code pointers for safe CDC
 
-### Input Ports
+Two-stage synchronizers for pointer crossing
 
-| Port | Width | Description |
-|------|-------|-------------|
-| `wclk` | 1 | Write clock |
-| `rclk` | 1 | Read clock |
-| `wrst_n` | 1 | Write domain reset (active low) |
-| `rrst_n` | 1 | Read domain reset (active low) |
-| `w_en` | 1 | Write enable signal |
-| `r_en` | 1 | Read enable signal |
-| `wdata` | width | Data to be written (default:  8-bit) |
+Accurate full and empty flag generation
 
-### Output Ports
+Self-checking Verilog testbench
 
-| Port | Width | Description |
-|------|-------|-------------|
-| `rdata` | width | Data read from FIFO (default: 8-bit) |
-| `full` | 1 | FIFO is full (active high) |
-| `empty` | 1 | FIFO is empty (active high) |
+Architecture
 
-## Parameters
+The FIFO consists of:
 
-```verilog
-parameter width = 8,        // Data width in bits (default: 8)
-parameter addr_width = 6    // Address width (FIFO depth = 2^addr_width, default: 64)
-```
+A shared memory array
 
-### Example Instantiation
+Binary write and read pointers
 
-```verilog
-async_fifo #(
-    .width(16),         // 16-bit data
-    .addr_width(8)      // 256-deep FIFO
-) my_fifo (
-    .wclk(write_clock),
-    .rclk(read_clock),
-    .wrst_n(write_reset_n),
-    .rrst_n(read_reset_n),
-    .w_en(write_enable),
-    .r_en(read_enable),
-    .wdata(write_data),
-    .rdata(read_data),
-    .full(fifo_full),
-    .empty(fifo_empty)
-);
-```
+Gray-coded versions of the pointers for CDC
 
-## Design Details
+Pointer synchronization across clock domains
 
-### 1. **Gray Code Pointer Encoding**
-- Write and read pointers are maintained in both binary and Gray code formats
-- Gray code is used for CDC (Clock Domain Crossing) as only one bit changes per increment
-- This minimizes metastability issues in synchronizers
+Full and empty flag logic based on Gray pointer comparison
 
-### 2. **CDC Synchronization (2-Stage Synchronizer)**
-- Gray code pointers are synchronized across clock domains using 2-stage flip-flops
-- Write pointer synchronized to read clock domain:  `wclk_rptr_gray_ff1 → wclk_rptr_gray_ff2`
-- Read pointer synchronized to write clock domain: `rclk_wptr_gray_ff1 → rclk_wptr_gray_ff2`
-- This ensures metastable signals have time to settle
+A high-level block diagram of the async FIFO architecture is shown below.
 
-### 3. **Empty Flag Detection**
-```verilog
+(Block diagram image can be added here)
+
+Design Details
+Gray Code Pointers
+
+Write and read pointers are maintained in binary and Gray formats
+
+Gray code ensures only one bit changes per increment, reducing CDC issues
+
+Pointer Synchronization
+
+Write pointer is synchronized into the read clock domain
+
+Read pointer is synchronized into the write clock domain
+
+Two flip-flop stages are used to allow metastability to settle
+
+Empty Detection
 assign empty = (rptr_gray == rclk_wptr_gray);
-```
-- FIFO is empty when the read pointer equals the synchronized write pointer (in Gray code)
 
-### 4. **Full Flag Detection**
-```verilog
-assign full = (wptr_gray == {~wclk_rptr_gray[addr_width: addr_width-1], 
-                             wclk_rptr_gray[addr_width-2:0]});
-```
-- FIFO is full when write pointer equals read pointer with MSB inverted
-- This is due to the circular nature of the pointer wraparound
 
-## Simulation
+The FIFO is empty when the read pointer equals the synchronized write pointer.
 
-### Running the Testbench
+Full Detection
+assign full = (wptr_gray ==
+              {~wclk_rptr_gray[addr_width:addr_width-1],
+                wclk_rptr_gray[addr_width-2:0]});
 
-Use any Verilog simulator (ModelSim, VCS, Vivado, etc. ):
 
-**Using ModelSim:**
-```bash
-vlog rtl/async_fifo.v tb/async_fifo_tb.v
-vsim async_fifo_tb
-run -all
-```
+The FIFO is full when the write pointer wraps around and catches up to the read pointer.
 
-**Using Vivado:**
-```bash
-xvlog rtl/async_fifo. v tb/async_fifo_tb.v
-xsim async_fifo_tb -gui
-```
+Reset Behavior
 
-### Testbench Overview
+Active-low resets (wrst_n, rrst_n) for each clock domain
 
-The testbench (`async_fifo_tb.v`) includes:
-- **Clock Generation**: Independent write (10ns period) and read (20ns period) clocks
-- **Asynchronous Reset**:  Separate resets for both clock domains
-- **Write Operations**:  Writes 32 random values to the FIFO
-- **Read Operations**: Reads 32 values and compares with expected data
-- **Verification**: Checks data integrity with error reporting
-- **Waveform Dump**:  Generates VCD file for viewing in waveform viewer
+Pointers and output data are reset to zero
 
-### Expected Output
-```
-[WRITE] Data = xxxxxxxx
-[WRITE] Data = xxxxxxxx
-... 
-[READ ] Data = xxxxxxxx (OK)
-[READ ] Data = xxxxxxxx (OK)
-...
+Writes and reads begin only after reset stabilization
+
+Testbench Overview
+
+The testbench (async_fifo_tb.v) verifies correct FIFO operation by:
+
+Generating independent write and read clocks
+
+Driving control signals on negedge and sampling on posedge
+
+Writing random data into the FIFO
+
+Reading data back and comparing with a reference model
+
+Reporting mismatches using $error
+
+Dumping waveforms for inspection
+
+Verification Results
+
+All written data is read back correctly
+
+No data loss or duplication
+
+Correct read order is preserved
+
+Full and empty flags behave as expected
+
+Example simulation output:
+
+[WRITE] Data = 24
+[WRITE] Data = 81
+[WRITE] Data = 09
+[WRITE] Data = 63
+[WRITE] Data = 0d
+[READ] 24 OK
+[READ] 81 OK
+[READ] 09 OK
+[READ] 63 OK
+[READ] 0d OK
 ---- TEST COMPLETED ----
-```
 
-## Clock Domain Crossing (CDC) Analysis
+Parameters
+parameter width = 8;        // Data width
+parameter addr_width = 6;  // FIFO depth = 2^addr_width
 
-### Metastability Handling
-The design safely handles clock domain crossing using: 
-1. **Gray Code Pointers**: Only one bit changes per pointer increment
-2. **2-Stage Synchronizer**: Breaks timing paths and allows metastable signals to settle
-3. **Independent Clocks**: Clocks are independent, eliminating race conditions
+How to Run
 
-### Timing Requirements
-- Minimum synchronizer period: 2 source clock periods
-- No timing constraints between wclk and rclk required
-- Can safely handle large clock frequency differences
+Using Icarus Verilog:
 
-## File Structure
+iverilog -o output.vvp async_fifo.v async_fifo_tb.v
+vvp output.vvp
 
-```
-async-fifo/
-├── rtl/
-│   └── async_fifo.v         # Main FIFO RTL module
-├── tb/
-│   └── async_fifo_tb.v      # Testbench
-├── README.md                # This file
-└── . gitignore               # Git ignore file
-```
 
-## Key Implementation Notes
+To view waveforms:
 
-1. **Circular Memory**:  Uses modulo addressing with power-of-2 depth for efficient implementation
-2. **Pointer Width**: Binary pointers are (addr_width + 1) bits to distinguish full from empty
-3. **Synchronous Writes/Reads**: All data updates are synchronous to respective clock domains
-4. **Reset Behavior**: Asynchronous resets clear all pointers and data
+gtkwave dump.vcd
 
-## Applications
+Files
 
-- **Multi-Clock Systems**: Data transfer between different frequency domains
-- **Asynchronous Communication**:  FIFO for asynchronous protocols
-- **Interface Buffers**: CDC for chip-to-chip or module-to-module communication
-- **Real-time Systems**: Safe buffering without strict clock synchronization
+async_fifo.v – Asynchronous FIFO RTL
 
-## Further Improvements
+async_fifo_tb.v – Self-checking testbench
 
-Possible enhancements:
-- [ ] Add FIFO count (occupancy) output
-- [ ] Add programmable threshold flags
-- [ ] Extend to configurable data widths (16, 32, 64-bit)
-- [ ] Add error detection/logging capabilities
-- [ ] Create assertion-based verification
+Notes
 
-## References
+This project highlights practical aspects of:
 
-- "Crossing the Abyss: Asynchronous FIFO Design Issues" - Sunburst Design
-- "CDC Design Verification" - IEEE 802 Standards
-- Gray Code:  https://en.wikipedia.org/wiki/Gray_code
+Clock domain crossing
 
-## License
+Enable timing relative to clock edges
 
-This project is open source.  Feel free to use and modify for your own projects. 
+Non-blocking assignment behavior in testbenches
 
-## Author
+FIFO read latency and verification timing
+
+Possible Improvements
+
+Almost-full / almost-empty flags
+
+FIFO occupancy counter
+
+Assertion-based or formal verification
+
+SystemVerilog enhancements
+
+Author
 
 Jathin496
-
----
-
-**Note**: This is a foundational design. For production use, consider adding formal verification and CDC-specific linting tools.
