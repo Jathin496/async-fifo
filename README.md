@@ -1,32 +1,32 @@
-# ⏳ Asynchronous FIFO (Async FIFO)
+#  Asynchronous FIFO
 
 An asynchronous FIFO implementation in Verilog for safe data transfer between two independent clock domains. The design uses Gray code pointers and double-flop synchronization to handle clock domain crossing (CDC) correctly.
 
 ---
 
-## 📋 Overview
+##  Overview
 
 This project implements an **Asynchronous FIFO (First-In-First-Out)** buffer that allows reliable communication between a write clock domain and a read clock domain running at different frequencies.
 
 The focus of this design is:
-- ✅ Correct CDC handling
-- ✅ Clean reset behavior
-- ✅ Self-checking testbench that verifies data integrity
+-  Correct CDC handling
+-  Clean reset behavior
+-  Self-checking testbench that verifies data integrity
 
 ---
 
-## 🚀 Key Features
+##  Key Features
 
-- 🔄 Independent write and read clocks
-- ⚙️ Parameterized data width and FIFO depth
-- 🔐 Gray code pointers for safe CDC
-- 🔀 Two-stage synchronizers for pointer crossing
-- 🎯 Accurate full and empty flag generation
-- 🧪 Self-checking Verilog testbench
+-  Independent write and read clocks
+-  Parameterized data width and FIFO depth
+-  Gray code pointers for safe CDC
+-  Two-stage synchronizers for pointer crossing
+-  Accurate full and empty flag generation
+-  Self-checking Verilog testbench
 
 ---
 
-## 🏗️ Architecture
+##  Architecture
 
 The FIFO consists of:
 
@@ -38,7 +38,7 @@ The FIFO consists of:
 
 ---
 
-## 🔧 Design Details
+##  Design Details
 
 ### Gray Code Pointers
 
@@ -78,28 +78,28 @@ The FIFO is **full** when the write pointer wraps around and catches up to the r
 
 ---
 
-## 🧪 Testbench Overview
+##  Testbench Overview
 
 The testbench (`async_fifo_tb.v`) verifies correct FIFO operation by:
 
-- ✅ Generating independent write and read clocks
-- ✅ Driving control signals on negedge and sampling on posedge
-- ✅ Writing random data into the FIFO
-- ✅ Reading data back and comparing with a reference model
-- ✅ Reporting mismatches using `$error`
-- ✅ Dumping waveforms for inspection
+-  Generating independent write and read clocks
+-  Driving control signals on negedge and sampling on posedge
+-  Writing random data into the FIFO
+-  Reading data back and comparing with a reference model
+-  Reporting mismatches using `$error`
+-  Dumping waveforms for inspection
 
 ---
 
-## 📊 Verification Results
+##  Verification Results
 
 | Test Case | Result |
 |-----------|--------|
-| Data Integrity | ✅ PASSED |
-| No Data Loss | ✅ PASSED |
-| No Duplication | ✅ PASSED |
-| Read Order Preservation | ✅ PASSED |
-| Full/Empty Flags | ✅ PASSED |
+| Data Integrity |  PASSED |
+| No Data Loss |  PASSED |
+| No Duplication |  PASSED |
+| Read Order Preservation |  PASSED |
+| Full/Empty Flags |  PASSED |
 
 ### Example Simulation Output
 
@@ -119,7 +119,7 @@ The testbench (`async_fifo_tb.v`) verifies correct FIFO operation by:
 
 ---
 
-## ⚙️ Parameters
+##  Parameters
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
@@ -128,7 +128,7 @@ The testbench (`async_fifo_tb.v`) verifies correct FIFO operation by:
 
 ---
 
-## 🏃 How to Run
+##  How to Run
 
 ### Using Icarus Verilog
 
@@ -145,7 +145,7 @@ gtkwave dump.vcd
 
 ---
 
-## 📁 Project Files
+##  Project Files
 
 | File | Description |
 |------|-------------|
@@ -155,18 +155,18 @@ gtkwave dump.vcd
 
 ---
 
-## 📚 Design Highlights
+##  Design Highlights
 
 This project demonstrates practical aspects of:
 
-- 🔌 **Clock Domain Crossing** – Safe pointer synchronization
-- ⏱️ **Enable Timing** – Relative to clock edges
-- 🔄 **Non-blocking Assignments** – In testbenches
-- ⏳ **FIFO Read Latency** – And verification timing considerations
+-  **Clock Domain Crossing** – Safe pointer synchronization
+-  **Enable Timing** – Relative to clock edges
+-  **Non-blocking Assignments** – In testbenches
+-  **FIFO Read Latency** – And verification timing considerations
 
 ---
 
-## 💡 Possible Improvements
+##  Possible Improvements
 
 - [ ] Almost-full / almost-empty flags
 - [ ] FIFO occupancy counter
@@ -176,6 +176,6 @@ This project demonstrates practical aspects of:
 
 ---
 
-## 👤 Author
+##  Author
 
 **Jathin496**
