@@ -61,7 +61,7 @@ module async_fifo_tb;
             temp  = $random;
             w_en  <= 1;
             wdata <= temp;
-            ref_mem[wr_cnt] = temp;   // ✅ FIX
+            ref_mem[wr_cnt] = temp;  
             $display("[WRITE] Data = %h", temp);
             wr_cnt++;
             @(posedge wclk);
@@ -102,3 +102,4 @@ module async_fifo_tb;
     end
 
 endmodule
+
